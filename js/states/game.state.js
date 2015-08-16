@@ -1,5 +1,11 @@
 ;(function (Phaser, app) {
   app.GameState = {
+    init: function () {
+      this.cursors = this.game.input.keyboard.createCursorKeys()
+      this.RUNNING_SPEED = 280
+      this.JUMPING_SPEED = 550
+    },
+
     create: function () {
       // create ground
       this.ground = this.game.add.sprite(0, 500, 'ground')
@@ -23,6 +29,17 @@
     update: function () {
       this.game.physics.arcade.collide(this.player, this.ground, this.landed)
       this.game.physics.arcade.collide(this.player, this.platform, this.landed)
+
+      this.player.body.velocity.x = 0
+      if (this.cursors.left.isDown) {
+        this.player.body.velocity.x = -this.RUNNING_SPEED
+      } else if (this.cursors.right.isDown) {
+        this.player.body.velocity.x = this.RUNNING_SPEED
+      }
+
+      if (this.cursors.up.isDown && this.player.body.touching.down) {
+        this.player.body.velocity.y = -this.JUMPING_SPEED
+      }
     },
 
     landed: function (player, ground) {}
