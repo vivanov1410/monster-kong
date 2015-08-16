@@ -5,6 +5,10 @@
       this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL
       this.scale.pageAlignHorizontally = true
       this.scale.pageAlignVertically = true
+
+      // enable physics
+      this.game.physics.startSystem(Phaser.Physics.ARCADE)
+      this.game.physics.arcade.gravity.y = 1000
     },
 
     preload: function () {},
