@@ -43,7 +43,7 @@
       this.fires.setAll('body.allowGravity', false)
 
       // create goal
-      this.goal = this.game.add.sprite(this.levelData.goal.x, this.levelData.goal.x, 'goal')
+      this.goal = this.game.add.sprite(this.levelData.goal.x, this.levelData.goal.y, 'goal')
       this.game.physics.arcade.enable(this.goal)
       this.goal.body.allowGravity = false
       this.goal.body.immovable = true
@@ -53,19 +53,30 @@
       this.player.anchor.setTo(0.5)
       this.player.animations.add('walking', [0, 1, 2, 1], 6, true)
       this.game.physics.arcade.enable(this.player)
+      this.player.body.collideWorldBounds = true
       this.player.params = {}
 
       this.game.camera.follow(this.player)
 
       this.createOnScreenControls()
+
+      this.barrels = this.game.add.group()
+      this.barrels.enableBody = true
+
+      this.createBarrel()
+      this.barrelCreator = this.game.time.events.loop(Phaser.Timer.SECOND * this.levelData.barrelFrequency, this.createBarrel, this)
     },
 
     update: function () {
-      this.game.physics.arcade.collide(this.player, this.ground, this.landed)
-      this.game.physics.arcade.collide(this.player, this.platforms, this.landed)
+      this.game.physics.arcade.collide(this.player, this.ground)
+      this.game.physics.arcade.collide(this.player, this.platforms)
 
       this.game.physics.arcade.overlap(this.player, this.fires, this.killPlayer, null, this)
       this.game.physics.arcade.overlap(this.player, this.goal, this.win, null, this)
+      this.game.physics.arcade.overlap(this.player, this.barrels, this.killPlayer, null, this)
+
+      this.game.physics.arcade.collide(this.barrels, this.ground)
+      this.game.physics.arcade.collide(this.barrels, this.platforms)
 
       this.player.body.velocity.x = 0
       if (this.cursors.left.isDown || this.player.params.isMovingLeft) {
@@ -85,6 +96,12 @@
         this.player.body.velocity.y = -this.JUMPING_SPEED
         this.player.params.isJumping = false
       }
+
+      this.barrels.forEach(function (barrel) {
+        if (barrel.x < 10 && barrel.y > 600) {
+          barrel.kill()
+        }
+      }, this)
     },
 
     landed: function (player, ground) {},
@@ -145,6 +162,20 @@
     win: function (player, goal) {
       alert('YOU WIN!')
       this.game.state.start('game')
+    },
+
+    createBarrel: function () {
+      var barrel = this.barrels.getFirstExists(false)
+
+      if (!barrel) {
+        barrel = this.barrels.create(0, 0, 'barrel')
+      }
+
+      barrel.body.collideWorldBounds = true
+      barrel.body.bounce.set(1, 0)
+
+      barrel.reset(this.levelData.goal.x, this.levelData.goal.y)
+      barrel.body.velocity.x = this.levelData.barrelSpeed
     }
   }
 })(window.Phaser, window.app, window.alert)
