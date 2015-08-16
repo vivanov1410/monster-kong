@@ -1,4 +1,4 @@
-;(function (Phaser, app) {
+;(function (Phaser, app, alert) {
   app.GameState = {
     init: function () {
       this.cursors = this.game.input.keyboard.createCursorKeys()
@@ -42,6 +42,12 @@
       this.fires.setAll('body.immovable', true)
       this.fires.setAll('body.allowGravity', false)
 
+      // create goal
+      this.goal = this.game.add.sprite(this.levelData.goal.x, this.levelData.goal.x, 'goal')
+      this.game.physics.arcade.enable(this.goal)
+      this.goal.body.allowGravity = false
+      this.goal.body.immovable = true
+
       // create player
       this.player = this.game.add.sprite(this.levelData.playerStart.x, this.levelData.playerStart.y, 'player', 3)
       this.player.anchor.setTo(0.5)
@@ -59,6 +65,7 @@
       this.game.physics.arcade.collide(this.player, this.platforms, this.landed)
 
       this.game.physics.arcade.overlap(this.player, this.fires, this.killPlayer, null, this)
+      this.game.physics.arcade.overlap(this.player, this.goal, this.win, null, this)
 
       this.player.body.velocity.x = 0
       if (this.cursors.left.isDown || this.player.params.isMovingLeft) {
@@ -131,7 +138,13 @@
     },
 
     killPlayer: function (player, fire) {
+      alert('GAME OVER!')
+      this.game.state.start('game')
+    },
+
+    win: function (player, goal) {
+      alert('YOU WIN!')
       this.game.state.start('game')
     }
   }
-})(window.Phaser, window.app)
+})(window.Phaser, window.app, window.alert)
