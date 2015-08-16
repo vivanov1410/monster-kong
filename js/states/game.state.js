@@ -13,11 +13,23 @@
       this.ground.body.allowGravity = false
       this.ground.body.immovable = true
 
-      // create platform
-      this.platform = this.game.add.sprite(0, 300, 'platform')
-      this.game.physics.arcade.enable(this.platform)
-      this.platform.body.allowGravity = false
-      this.platform.body.immovable = true
+      // create platforms
+      var platformsData = [
+        { x: 0, y: 430 },
+        { x: 45, y: 560 },
+        { x: 90, y: 290 },
+        { x: 0, y: 140 }
+      ]
+
+      this.platforms = this.game.add.group()
+      this.platforms.enableBody = true
+
+      for (var i = 0; i < platformsData.length; i++) {
+        this.platforms.create(platformsData[i].x, platformsData[i].y, 'platform')
+      }
+
+      this.platforms.setAll('body.immovable', true)
+      this.platforms.setAll('body.allowGravity', false)
 
       // create player
       this.player = this.game.add.sprite(100, 200, 'player', 3)
@@ -31,7 +43,7 @@
 
     update: function () {
       this.game.physics.arcade.collide(this.player, this.ground, this.landed)
-      this.game.physics.arcade.collide(this.player, this.platform, this.landed)
+      this.game.physics.arcade.collide(this.player, this.platforms, this.landed)
 
       this.player.body.velocity.x = 0
       if (this.cursors.left.isDown || this.player.params.isMovingLeft) {
