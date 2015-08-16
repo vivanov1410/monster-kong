@@ -7,36 +7,34 @@
     },
 
     create: function () {
+      // parse data file
+      this.levelData = JSON.parse(this.game.cache.getText('level'))
+
       // create ground
-      this.ground = this.game.add.sprite(0, 500, 'ground')
+      this.ground = this.game.add.sprite(0, 638, 'ground')
       this.game.physics.arcade.enable(this.ground)
       this.ground.body.allowGravity = false
       this.ground.body.immovable = true
 
       // create platforms
-      var platformsData = [
-        { x: 0, y: 430 },
-        { x: 45, y: 560 },
-        { x: 90, y: 290 },
-        { x: 0, y: 140 }
-      ]
-
       this.platforms = this.game.add.group()
       this.platforms.enableBody = true
 
-      for (var i = 0; i < platformsData.length; i++) {
-        this.platforms.create(platformsData[i].x, platformsData[i].y, 'platform')
+      for (var i = 0; i < this.levelData.platformsData.length; i++) {
+        this.platforms.create(this.levelData.platformsData[i].x, this.levelData.platformsData[i].y, 'platform')
       }
 
       this.platforms.setAll('body.immovable', true)
       this.platforms.setAll('body.allowGravity', false)
 
       // create player
-      this.player = this.game.add.sprite(100, 200, 'player', 3)
+      this.player = this.game.add.sprite(this.levelData.playerStart.x, this.levelData.playerStart.y, 'player', 3)
       this.player.anchor.setTo(0.5)
       this.player.animations.add('walking', [0, 1, 2, 1], 6, true)
       this.game.physics.arcade.enable(this.player)
       this.player.params = {}
+
+      this.game.camera.follow(this.player)
 
       this.createOnScreenControls()
     },
@@ -48,8 +46,15 @@
       this.player.body.velocity.x = 0
       if (this.cursors.left.isDown || this.player.params.isMovingLeft) {
         this.player.body.velocity.x = -this.RUNNING_SPEED
+        this.player.scale.setTo(1, 1)
+        this.player.play('walking')
       } else if (this.cursors.right.isDown || this.player.params.isMovingRight) {
         this.player.body.velocity.x = this.RUNNING_SPEED
+        this.player.scale.setTo(-1, 1)
+        this.player.play('walking')
+      } else {
+        this.player.animations.stop()
+        this.player.frame = 3
       }
 
       if ((this.cursors.up.isDown || this.player.params.isJumping) && this.player.body.touching.down) {
@@ -68,6 +73,10 @@
       this.leftArrow.alpha = 0.5
       this.rightArrow.alpha = 0.5
       this.actionButton.alpha = 0.5
+
+      this.leftArrow.fixedToCamera = true
+      this.rightArrow.fixedToCamera = true
+      this.actionButton.fixedToCamera = true
 
       this.actionButton.events.onInputDown.add(function () {
         this.player.params.isJumping = true

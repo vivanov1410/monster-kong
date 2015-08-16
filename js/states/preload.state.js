@@ -10,6 +10,8 @@
 
       this.game.load.spritesheet('player', 'assets/images/player.spritesheet.png', 28, 30, 5, 1, 1)
       this.game.load.spritesheet('fire', 'assets/images/fire.spritesheet.png', 20, 21, 2, 1, 1)
+
+      this.game.load.text('level', 'assets/data/level.json')
     },
 
     create: function () {
