@@ -20,12 +20,27 @@
       this.platforms = this.game.add.group()
       this.platforms.enableBody = true
 
-      for (var i = 0; i < this.levelData.platformsData.length; i++) {
+      var i
+      for (i = 0; i < this.levelData.platformsData.length; i++) {
         this.platforms.create(this.levelData.platformsData[i].x, this.levelData.platformsData[i].y, 'platform')
       }
 
       this.platforms.setAll('body.immovable', true)
       this.platforms.setAll('body.allowGravity', false)
+
+      // create fires
+      this.fires = this.game.add.group()
+      this.fires.enableBody = true
+
+      var fire
+      for (i = 0; i < this.levelData.firesData.length; i++) {
+        fire = this.fires.create(this.levelData.firesData[i].x, this.levelData.firesData[i].y, 'fire')
+        fire.animations.add('fire', [0, 1, 0], 4, true)
+        fire.play('fire')
+      }
+
+      this.fires.setAll('body.immovable', true)
+      this.fires.setAll('body.allowGravity', false)
 
       // create player
       this.player = this.game.add.sprite(this.levelData.playerStart.x, this.levelData.playerStart.y, 'player', 3)
@@ -42,6 +57,8 @@
     update: function () {
       this.game.physics.arcade.collide(this.player, this.ground, this.landed)
       this.game.physics.arcade.collide(this.player, this.platforms, this.landed)
+
+      this.game.physics.arcade.overlap(this.player, this.fires, this.killPlayer, null, this)
 
       this.player.body.velocity.x = 0
       if (this.cursors.left.isDown || this.player.params.isMovingLeft) {
@@ -111,6 +128,10 @@
       this.rightArrow.events.onInputOut.add(function () {
         this.player.params.isMovingRight = false
       }, this)
+    },
+
+    killPlayer: function (player, fire) {
+      this.game.state.start('game')
     }
   }
 })(window.Phaser, window.app)
